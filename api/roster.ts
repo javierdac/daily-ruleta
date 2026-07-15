@@ -1,4 +1,4 @@
-// Vercel Function (Web standard Request/Response).
+// Vercel Function (firma Node.js: req, res).
 //
 // Recibe el token SSO del usuario en Teams, lo intercambia por un token de
 // Microsoft Graph con el flujo On-Behalf-Of (OBO), y devuelve los miembros del
@@ -13,37 +13,51 @@
 
 const GRAPH_SCOPE = "https://graph.microsoft.com/ChatMember.Read";
 
-export default async function handler(req: Request): Promise<Response> {
-  const cors: Record<string, string> = {
-    "Access-Control-Allow-Origin": req.headers.get("origin") ?? "*",
-    "Access-Control-Allow-Methods": "GET,OPTIONS",
-    "Access-Control-Allow-Headers": "Authorization,Content-Type",
-    Vary: "Origin",
-  };
+interface Req {
+  method?: string;
+  query: Record<string, string | string[] | undefined>;
+  headers: Record<string, string | string[] | undefined>;
+}
+interface Res {
+  setHeader(name: string, value: string): void;
+  status(code: number): Res;
+  json(body: unknown): void;
+  end(): void;
+}
+
+export default async function handler(req: Req, res: Res): Promise<void> {
+  const origin = pick(req.headers.origin) ?? "*";
+  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Vary", "Origin");
+  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Authorization,Content-Type");
 
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: cors });
+    res.status(204).end();
+    return;
   }
   if (req.method !== "GET") {
-    return json({ error: "Método no permitido" }, 405, cors);
+    res.status(405).json({ error: "Método no permitido" });
+    return;
   }
 
-  const url = new URL(req.url);
-  const chatId = url.searchParams.get("chatId");
-  const ssoToken = (req.headers.get("authorization") ?? "").replace(
+  const chatId = pick(req.query.chatId);
+  const ssoToken = (pick(req.headers.authorization) ?? "").replace(
     /^Bearer\s+/i,
     "",
   );
 
   if (!chatId || !ssoToken) {
-    return json({ error: "Falta chatId o token SSO" }, 400, cors);
+    res.status(400).json({ error: "Falta chatId o token SSO" });
+    return;
   }
 
   const tenant = process.env.AAD_TENANT_ID;
   const clientId = process.env.AAD_CLIENT_ID;
   const clientSecret = process.env.AAD_CLIENT_SECRET;
   if (!tenant || !clientId || !clientSecret) {
-    return json({ error: "Backend sin configurar (faltan AAD_*)" }, 500, cors);
+    res.status(500).json({ error: "Backend sin configurar (faltan AAD_*)" });
+    return;
   }
 
   // 1) On-Behalf-Of: cambiar el token SSO por uno de Graph.
@@ -65,14 +79,16 @@ export default async function handler(req: Request): Promise<Response> {
         body: params,
       },
     );
-    const data: any = await r.json();
-    if (!r.ok) {
+    const data = (await r.json()) as { access_token?: string };
+    if (!r.ok || !data.access_token) {
       // Suele ser consentimiento faltante (invalid_grant / consent_required).
-      return json({ error: "Fallo OBO", detail: data }, 502, cors);
+      res.status(502).json({ error: "Fallo OBO", detail: data });
+      return;
     }
     graphToken = data.access_token;
   } catch (e) {
-    return json({ error: "Error en OBO", detail: String(e) }, 502, cors);
+    res.status(502).json({ error: "Error en OBO", detail: String(e) });
+    return;
   }
 
   // 2) Leer los miembros del chat de la reunión.
@@ -83,32 +99,35 @@ export default async function handler(req: Request): Promise<Response> {
       )}/members`,
       { headers: { Authorization: `Bearer ${graphToken}` } },
     );
-    const data: any = await r.json();
+    const data = (await r.json()) as {
+      value?: Array<{
+        id?: string;
+        userId?: string;
+        displayName?: string;
+        email?: string;
+        roles?: string[];
+      }>;
+      error?: unknown;
+    };
     if (!r.ok) {
-      return json({ error: "Fallo Graph", detail: data }, 502, cors);
+      res.status(502).json({ error: "Fallo Graph", detail: data });
+      return;
     }
 
     const participants = (data.value ?? [])
-      .map((m: any) => ({
-        id: m.userId || m.id,
+      .map((m) => ({
+        id: m.userId || m.id || "",
         name: m.displayName || m.email || "",
         isHost: Array.isArray(m.roles) && m.roles.includes("owner"),
       }))
-      .filter((p: { name: string }) => p.name.length > 0);
+      .filter((p) => p.name.length > 0);
 
-    return json({ participants }, 200, cors);
+    res.status(200).json({ participants });
   } catch (e) {
-    return json({ error: "Error en Graph", detail: String(e) }, 502, cors);
+    res.status(502).json({ error: "Error en Graph", detail: String(e) });
   }
 }
 
-function json(
-  body: unknown,
-  status: number,
-  headers: Record<string, string>,
-): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...headers, "Content-Type": "application/json" },
-  });
+function pick(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
 }
