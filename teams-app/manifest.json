@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "REEMPLAZAR-CON-GUID-DE-AZURE-AD",
+  "developer": {
+    "name": "Tu Equipo",
+    "websiteUrl": "https://TU-DOMINIO",
+    "privacyUrl": "https://TU-DOMINIO/privacy",
+    "termsOfUseUrl": "https://TU-DOMINIO/terms"
+  },
+  "name": {
+    "short": "Ruleta Daily",
+    "full": "Ruleta del Daily Scrum"
+  },
+  "description": {
+    "short": "Elige al azar quién habla en el daily.",
+    "full": "Muestra los participantes conectados de la reunión y sortea uno al azar para el daily scrum."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#4f46e5",
+  "configurableTabs": [
+    {
+      "configurationUrl": "https://TU-DOMINIO/?platform=teams",
+      "scopes": ["groupChat"],
+      "context": ["meetingSidePanel", "meetingStage"]
+    }
+  ],
+  "validDomains": ["TU-DOMINIO"],
+  "webApplicationInfo": {
+    "id": "REEMPLAZAR-CON-GUID-DE-AZURE-AD",
+    "resource": "api://TU-DOMINIO/REEMPLAZAR-CON-GUID-DE-AZURE-AD"
+  }
+}
