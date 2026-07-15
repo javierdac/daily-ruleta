@@ -61,3 +61,7 @@ teams-app/
   manifest.json     # manifiesto de la app de Teams
 docs/               # guías de setup por plataforma
 ```
+
+## Licencia
+
+[MIT](LICENSE) © 2026 Javier Daccorso
