@@ -5,9 +5,9 @@
   "id": "REEMPLAZAR-CON-GUID-DE-AZURE-AD",
   "developer": {
     "name": "Tu Equipo",
-    "websiteUrl": "https://TU-DOMINIO",
-    "privacyUrl": "https://TU-DOMINIO/privacy",
-    "termsOfUseUrl": "https://TU-DOMINIO/terms"
+    "websiteUrl": "https://daily-ruleta-six.vercel.app",
+    "privacyUrl": "https://daily-ruleta-six.vercel.app/privacy",
+    "termsOfUseUrl": "https://daily-ruleta-six.vercel.app/terms"
   },
   "name": {
     "short": "Ruleta Daily",
@@ -24,14 +24,14 @@
   "accentColor": "#4f46e5",
   "configurableTabs": [
     {
-      "configurationUrl": "https://TU-DOMINIO/?platform=teams",
+      "configurationUrl": "https://daily-ruleta-six.vercel.app/?platform=teams",
       "scopes": ["groupChat"],
       "context": ["meetingSidePanel", "meetingStage"]
     }
   ],
-  "validDomains": ["TU-DOMINIO"],
+  "validDomains": ["daily-ruleta-six.vercel.app"],
   "webApplicationInfo": {
     "id": "REEMPLAZAR-CON-GUID-DE-AZURE-AD",
-    "resource": "api://TU-DOMINIO/REEMPLAZAR-CON-GUID-DE-AZURE-AD"
+    "resource": "api://daily-ruleta-six.vercel.app/REEMPLAZAR-CON-GUID-DE-AZURE-AD"
   }
 }

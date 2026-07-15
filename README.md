@@ -4,6 +4,9 @@ Ruleta que muestra los **participantes conectados** de una reunión y **elige un
 azar**. Es una única app web que se integra como **plugin en Zoom** (Zoom App) y en
 **Microsoft Teams** (meeting app), detectando sola en qué plataforma corre.
 
+**🔗 App en vivo:** https://daily-ruleta-six.vercel.app
+**⚙️ Configurarlo en Zoom / Teams:** [`docs/configuracion.md`](docs/configuracion.md)
+
 ## Cómo funciona
 
 - Un mismo código, tres adaptadores (`src/platform/`):
@@ -41,8 +44,9 @@ Zoom y Teams **exigen HTTPS**; en local usá un túnel (`ngrok http 5173`).
 
 ## Integración por plataforma
 
-- Zoom: ver [`docs/zoom-setup.md`](docs/zoom-setup.md)
-- Teams: ver [`docs/teams-setup.md`](docs/teams-setup.md) y `teams-app/manifest.json`
+- **Guía concreta (con la URL en vivo):** [`docs/configuracion.md`](docs/configuracion.md)
+- Detalle Zoom: [`docs/zoom-setup.md`](docs/zoom-setup.md)
+- Detalle Teams: [`docs/teams-setup.md`](docs/teams-setup.md) y `teams-app/manifest.json`
 
 ## Estructura
 
